@@ -8,19 +8,19 @@
 class Deque {
 
   
-private:
+ private:
   // Private members
   std::string* queue;
   int back;
   int front;
-  int capacity;
-  int size_of_queue;
+  unsigned int capacity;
+  unsigned int size_of_queue;
 
   /* Helper function that handles the array recreation for grow() and shrink() */
   // Create a new array with passed in capacity; temp
   // Store a counter for the new index; new_index
   // Iterate from back + 1 to front, modding by the old capacity
-    // Add current item to temp @ new_index
+    // Assign current element in queue to element @ new_index in temp 
     // Increment new_index
   // Assign 0 to back
   // Assign new_index to front
@@ -28,20 +28,21 @@ private:
   // Update capacity
   // Delete temp array
   void change_queue_size(int new_capacity) {
+    std::cout << "New capacity: " << new_capacity << std::endl;
     std::string* temp = new std::string[new_capacity];
     int new_index = 0;
-    
-    for (int i = ( (back + 1) % capacity ); i != front; i = (i + 1) % capacity) {
+
+    for (int i = (back + 1) % capacity; i != back; i = (i + 1) % capacity) {
       temp[new_index] = queue[i];
       ++new_index;
     }
     
     back = 0;
     front = new_index;
-    delete queue;
+    delete [] queue;
     queue = temp;
     capacity = new_capacity;
-    delete temp;
+    delete [] temp;
   }
   
   /* Method used for automatically increasing the size of the dequeue
@@ -66,7 +67,7 @@ private:
   }
 
   
-public:
+ public:
 	//Constructor
 	Deque() {
 	  capacity = INIT_SIZE;	  	  
@@ -106,8 +107,8 @@ public:
 	  if ((((back-1) % capacity) + capacity) % capacity == front) { // queue is full
 	    grow();
 	  }
+          queue[back] = item;
 	  back = (((back-1) % capacity) + capacity) % capacity;
-	  queue[back] = item;
 	  ++size_of_queue;
 	}
 
@@ -178,7 +179,7 @@ public:
         // Convert the string stream to a string and return it 
 	std::string toStr() {
 	  std::ostringstream oss;
-	  for (int i = ( (front) % capacity ); i != (back - 1 % capacity); i--) {
+	  for (int i = front; i != back; i = ((((i - 1) % capacity)) + capacity) % capacity) {
 	    oss << queue[i] << "\n";
 	  }
 	    return oss.str();
