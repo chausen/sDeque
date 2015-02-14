@@ -11,10 +11,11 @@ class Deque {
  private:
   // Private members
   std::string* queue;
-  int back;
-  int front;
+  unsigned int back;
+  unsigned int front;
   unsigned int capacity;
   unsigned int size_of_queue;
+
 
   /* Helper function that handles the array recreation for grow() and shrink() */
   // Create a new array with passed in capacity; temp
@@ -26,23 +27,18 @@ class Deque {
   // Assign new_index to front
   // Assign temp to new queue
   // Update capacity
-  // Delete temp array
-  void change_queue_size(int new_capacity) {
-    std::cout << "New capacity: " << new_capacity << std::endl;
+  void change_capacity(int new_capacity) {
     std::string* temp = new std::string[new_capacity];
-    int new_index = 0;
-
-    for (int i = (back + 1) % capacity; i != back; i = (i + 1) % capacity) {
+    int new_index = 1;
+    for (int i = (back + 1) % capacity; i != (front + 1) % capacity; i = (i + 1) % capacity) {
       temp[new_index] = queue[i];
       ++new_index;
     }
     
     back = 0;
-    front = new_index;
-    delete [] queue;
+    front = new_index - 1;
     queue = temp;
     capacity = new_capacity;
-    delete [] temp;
   }
   
   /* Method used for automatically increasing the size of the dequeue
@@ -52,7 +48,7 @@ class Deque {
   // Call helper function, passing the new capacity
   void grow() {
     int new_capacity = capacity * 2;
-    change_queue_size(new_capacity);
+    change_capacity(new_capacity);
   }
 
   /* Method used for automatically decreasing the size of the dequeue
@@ -63,7 +59,7 @@ class Deque {
   // Call helper function, passing the new capacity
   void shrink() {
     int new_capacity = capacity / 2;
-    change_queue_size(new_capacity);
+    change_capacity(new_capacity);
   }
 
   
@@ -104,11 +100,11 @@ class Deque {
 	// Assign item to the queue at index back
 	// Increment size_of_queue
 	void push_back(std::string item) {
-	  if ((((back-1) % capacity) + capacity) % capacity == front) { // queue is full
+	  if ((back - 1) % capacity == front) { // queue is full
 	    grow();
 	  }
           queue[back] = item;
-	  back = (((back-1) % capacity) + capacity) % capacity;
+	  back = (back - 1) % capacity;
 	  ++size_of_queue;
 	}
 
@@ -126,11 +122,11 @@ class Deque {
 	    std::cerr << "ERROR: Deque is empty, cannot pop" << std::endl;
 	    return "";
 	  }
-	  if ( size_of_queue - 1 < capacity / 4 ) {
+	  if ( (size_of_queue - 1 < capacity / 4) && (capacity != 8) ) {
 	    shrink();
 	  }
 	  std::string temp = queue[front];
-	  front = (((front-1) % capacity ) + capacity) % capacity;
+	  front = (front - 1) % capacity;
 	  --size_of_queue;
 	  return temp;
 	}
@@ -149,7 +145,7 @@ class Deque {
 	    std::cerr << "ERROR: Deque is empty, cannot pop" << std::endl;
 	    return "";
 	  }
-	  if ( size_of_queue - 1 < capacity / 4 ) {
+	  if ( (size_of_queue - 1 < capacity / 4) && (capacity != 8) ) {
 	    shrink();
 	  }
 	  std::string temp = queue[back];
@@ -164,6 +160,8 @@ class Deque {
 	}
 
 	int get_capacity() { return capacity; }
+	int get_front() { return front; }
+	int get_back() { return back; }
 	
 	/* Tells whether the queue is empty or not. */
 	bool empty() {
@@ -173,16 +171,12 @@ class Deque {
 	/* Puts the contents of the queue from front to back into a 
 	 * return string with each string item followed by a newline
 	 */
-        // Instantiate string stream
-        // Iterate through queue, accounting for wrap-around
-          // Output the ith element, followed by a newline, to the string stream
-        // Convert the string stream to a string and return it 
 	std::string toStr() {
-	  std::ostringstream oss;
-	  for (int i = front; i != back; i = ((((i - 1) % capacity)) + capacity) % capacity) {
-	    oss << queue[i] << "\n";
+	  std::ostringstream oss;         // Instantiate string stream
+	  for (int i = front; i != back; i = (i - 1) % capacity) {         // Iterate through queue, accounting for wrap-around
+	    oss << queue[i] << std::endl;           // Output the ith element, followed by a newline, to the string stream
 	  }
-	    return oss.str();
+	    return oss.str();        // Convert the string stream to a string and return it 
 	}
 };
 
