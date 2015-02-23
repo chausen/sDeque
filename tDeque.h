@@ -6,12 +6,13 @@
 #include <stdexcept>
 #define INIT_SIZE 8  // initialize size
 
-class Deque {
+
+template <typename T> class Deque {
 
   
  private:
   // Private members
-  std::string* queue;
+  T* queue;
   unsigned int back;
   unsigned int front;
   unsigned int capacity;
