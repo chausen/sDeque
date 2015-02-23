@@ -17,7 +17,12 @@ class Deque {
   unsigned int capacity;
   unsigned int size_of_queue;
 
+  int get_capacity() { return capacity; }
+  int get_front() { return front; }
+  int get_back() { return back; }
+	 
 
+  
   /* Helper function that handles the array recreation for grow() and shrink() */
   // Create a new array with passed in capacity; temp
   // Store a counter for the new index; new_index
@@ -30,7 +35,7 @@ class Deque {
   // Update capacity
   void change_capacity(int new_capacity) {
     std::string* temp = new std::string[new_capacity];
-    int new_index = 1;
+    int new_index(1);
     for (int i = (back + 1) % capacity; i != (front + 1) % capacity; i = (i + 1) % capacity) {
       temp[new_index] = queue[i];
       ++new_index;
@@ -85,13 +90,18 @@ class Deque {
         // Increment front, accounting for wrap around
 	// Assign item to the element at index front
 	// Increment size_of_queue
+	// Catch bad_alloc exception if free store runs dry and throw descriptive runtime_error exception
 	void push_front(std::string item) {
-	  if ( ( (front + 1) % capacity ) == back) { // queue is full
-	    grow();
+	  try {
+	    if ( ( (front + 1) % capacity ) == back) { // queue is full
+	      grow();
+	    }
+	    front = (front + 1) % capacity;
+	    queue[front] = item;
+	    ++size_of_queue;
+	  } catch (std::bad_alloc out_of_mem) {
+	    throw std::runtime_error("Program has run out of memory");
 	  }
-	  front = (front + 1) % capacity;
-	  queue[front] = item;
-	  ++size_of_queue;
 	}
 	
 	/* Inserts the element at the back of the queue */
@@ -100,18 +110,23 @@ class Deque {
 	// Decrement back, accounting for wrap around
 	// Assign item to the queue at index back
 	// Increment size_of_queue
+	// Catch bad_alloc exception if free store runs dry and throw descriptive runtime_error exception	
 	void push_back(std::string item) {
-	  if ((back - 1) % capacity == front) { // queue is full
-	    grow();
+	  try {
+	    if ((back - 1) % capacity == front) { // queue is full
+	      grow();
+	    }
+	    queue[back] = item;
+	    back = (back - 1) % capacity;
+	    ++size_of_queue;
+	  } catch (std::bad_alloc out_of_mem) {
+	    throw std::runtime_error("Program has run out of memory");
 	  }
-          queue[back] = item;
-	  back = (back - 1) % capacity;
-	  ++size_of_queue;
 	}
 
 	/* Removes and returns the element at the front of the queue. */
         // Check for empty deque
-          // If empty, output error
+          // If empty, throw runtime error
         // Check for under 1/4 capacity
           // If under, shrink
         // Assign current front item to temp
@@ -120,8 +135,7 @@ class Deque {
         // Return temp
 	std::string pop_front() {
 	  if (empty() ) {
-	    std::cerr << "ERROR: Deque is empty, cannot pop" << std::endl;
-	    return "";
+	    throw std::runtime_error("Deque is empty; cannot pop");
 	  }
 	  if ( (size_of_queue - 1 < capacity / 4) && (capacity != 8) ) {
 	    shrink();
@@ -134,7 +148,7 @@ class Deque {
 
 	/* Removes and returns the element at the back of the queue. */
         // Check for empty deque
-          // If empty, output error
+          // If empty, throw runtime error
         // Check for under 1/4 capacity
           // If under, shrink
         // Assign current back item to temp
@@ -143,8 +157,7 @@ class Deque {
         // Return temp
 	std::string pop_back() {
 	  if (empty() ) {
-	    std::cerr << "ERROR: Deque is empty, cannot pop" << std::endl;
-	    return "";
+	    throw std::runtime_error("Deque is empty; cannot pop");
 	  }
 	  if ( (size_of_queue - 1 < capacity / 4) && (capacity != 8) ) {
 	    shrink();
@@ -160,10 +173,7 @@ class Deque {
 	  return size_of_queue;
 	}
 
-	int get_capacity() { return capacity; }
-	int get_front() { return front; }
-	int get_back() { return back; }
-	
+
 	/* Tells whether the queue is empty or not. */
 	bool empty() {
 	  return front == back;
